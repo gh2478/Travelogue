@@ -1,0 +1,7 @@
+#Internal package file, do not edit.
+#Mon Oct 29 13:49:02 PDT 2018
+0.baseType=DIRECTORY
+0.base=/Users/jordanhaynes/Documents/Travelogue/app/build/intermediates/transforms/dexMerger/debug/836
+0.path=classes.dex
+0.set=DEX
+count=1
