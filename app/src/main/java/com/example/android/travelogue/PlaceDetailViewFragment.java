@@ -21,6 +21,19 @@ public class PlaceDetailViewFragment extends Fragment {
 
     private static final String TAG = "PlaceDetailViewFragment";
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    /*
+    // PULL REQUEST 2: get location or image from gallery
+    private static final int REQUEST_LOCATION_PERMISSION = 2;
+    private static final int GRAB_IMAGE_GALLERY = 3;
+    private static final String[] LOCATION_PERMISSIONS = new String[] {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+
+    private ImageView placeBitmap;
+
+    private FusedLocationProviderClient client;
+    */
 
     private OnFragmentInteractionListener mListener;
 
@@ -34,6 +47,34 @@ public class PlaceDetailViewFragment extends Fragment {
 
     public PlaceDetailViewFragment() {
     }
+
+    /*
+    // PULL REQUEST 2: get location or image from gallery
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                placeBitmap.setImageBitmap(imageBitmap);
+            }
+            else if (requestCode == GRAB_IMAGE_GALLERY) {
+                try {
+                    final Uri imageUri = data.getData();
+                    final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
+                    final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                    placeBitmap.setImageBitmap(selectedImage);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    // String errorString = "Something went wrong trying to load picture " + data.getDataString();
+                    // Toast.makeText(this, errorString, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+    */
 
     public void setDetails(String name, String location, String notes) {
         this.placeName = name;
@@ -82,6 +123,44 @@ public class PlaceDetailViewFragment extends Fragment {
                 }
             }
         });
+
+        /*
+        // PULL REQUEST 2: get location or image from gallery
+        Button grabPictureButton = (Button) view.findViewById(R.id.place_grab_picture);
+        grabPictureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Grab a picture from the gallery");
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, GRAB_IMAGE_GALLERY);
+            }
+        });
+
+        // PULL REQUEST 2: get location or image from gallery
+        Button getLocationButton = (Button) view.findViewById(R.id.place_get_location);
+        getLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Get the location of this place");
+                if (hasLocationPermission()) {
+                    client = LocationServices.getFusedLocationProviderClient(getActivity());
+                    client.getLastLocation()
+                            .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                                @Override
+                                public void onSuccess(Location location) {
+                                    if (location != null) {
+                                        Log.i(TAG, "Got location " + location);
+                                    }
+                                }
+                            });
+                }
+                else {
+                    requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSION);
+                }
+            }
+        });
+        */
 
         return view;
     }
@@ -156,4 +235,12 @@ public class PlaceDetailViewFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    /*
+    // PULL REQUEST 2: get location or image from gallery
+    private boolean hasLocationPermission() {
+        int result = ContextCompat.checkSelfPermission(getActivity(), LOCATION_PERMISSIONS[0]);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+    */
 }
