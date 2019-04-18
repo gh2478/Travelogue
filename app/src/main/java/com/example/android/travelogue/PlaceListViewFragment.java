@@ -17,11 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.travelogue.data.PlacesDatabase;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +31,7 @@ public class PlaceListViewFragment extends Fragment {
 
     private static final String TAG = "PlaceListViewFragment";
 
-    private final List<String> placeList = new ArrayList<>();
+    private final List<Place> placeList = new ArrayList<>();
     private final List<String> keyList = new ArrayList<>();
 
     private OnListFragmentInteractionListener mListener;
@@ -103,15 +98,14 @@ public class PlaceListViewFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(String place, String location, String notes);
+        void onListFragmentInteraction(Place place);
     }
 
     private class PlaceListHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final TextView placeNameTextView;
         private int position;
-        private String placeName;
-
+        private Place place;
 
         public PlaceListHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.fragment_place, parent, false));
@@ -122,46 +116,15 @@ public class PlaceListViewFragment extends Fragment {
         public void bind(int position) {
             this.position = position;
 
-            placeName = placeList.get(position);
-            placeNameTextView.setText(placeName);
+            place = placeList.get(position);
+            placeNameTextView.setText(place.placeName);
         }
 
         @Override
         public void onClick(View view) {
             Log.d(TAG, "This has been clicked!");
 
-            //TODO Make Query here?
-            final String placeLocation = "Null";
-            // String placeNotes = "Null";
-
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            String placeKey = keyList.get(position);
-            DatabaseReference myRef = database.getReference("/places/" + placeKey);
-
-            Log.d(TAG, "Database reference for onClick!");
-
-            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String placeNotes = dataSnapshot.child("notes").getValue(String.class);
-                    // placeList.add(place);
-                    Log.d(TAG, "onClick for place: " + placeName + " notes: " + placeNotes);
-                    // placeListAdapter.notifyDataSetChanged();
-
-                    mListener.onListFragmentInteraction(placeName, placeLocation, placeNotes);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-
-            // TODO Change text in Toast
-            // Toast.makeText(getActivity(), "Recipe title", Toast.LENGTH_SHORT).show();
-            // Log.d(TAG, "Listed onClick: " + placeLocation + " and " + placeNotes);
-
-            // mListener.onListFragmentInteraction(placeName, placeLocation, placeNotes);
+            mListener.onListFragmentInteraction(place);
         }
     }
 
@@ -191,33 +154,26 @@ public class PlaceListViewFragment extends Fragment {
 
     // Retrieve the list of places from the database
     private void retrievePlaces() {
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("/places");
-
-        Log.d(TAG, "Database created!");
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds: dataSnapshot.getChildren()) {
-                    String placeKey = ds.getKey();
-                    String place = ds.child("name").getValue(String.class);
-                    Log.d(TAG, "Key for place " + place + " is: " + placeKey);
-
-                    keyList.add(placeKey);
-                    placeList.add(place);
-                }
-                Log.d(TAG, "Starting list of places " + placeList);
-                placeListAdapter.notifyDataSetChanged();
+        // Query the database to get a list of places
+        Uri contentUri = Uri.parse("content://" + PlacesDatabase.AUTHORITY + "/" + PlacesDatabase.BASE_PATH);
+        String[] projection = { "placeName", "placeLocation", "placeNotes" };
+        Cursor cursor = null;
+        try {
+            cursor = getActivity().getContentResolver().query(contentUri, projection, null, null, null);
+            while (cursor.moveToNext()) {
+                String placeName = cursor.getString(cursor.getColumnIndexOrThrow("placeName"));
+                String placeLocation = cursor.getString(cursor.getColumnIndexOrThrow("placeLocation"));
+                String placeNotes = cursor.getString(cursor.getColumnIndexOrThrow("placeNotes"));
+                Place place = new Place(placeName, placeLocation, placeNotes);
+                Log.d(TAG, "Retrieved place name: " + place.placeName);
+                placeList.add(place);
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+        } catch (Exception e) {
+            Log.e(TAG, "Error found: " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
-        });
-
-        Log.d(TAG, "The query is as follows: " + placeList);
+        }
     }
 }

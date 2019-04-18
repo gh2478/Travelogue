@@ -1,10 +1,13 @@
 package com.example.android.travelogue;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.travelogue.data.PlacesDatabase;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class PlaceDetailViewFragment extends Fragment {
@@ -30,26 +35,20 @@ public class PlaceDetailViewFragment extends Fragment {
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
-    private ImageView placeBitmap;
-
     private FusedLocationProviderClient client;
     */
 
     private OnFragmentInteractionListener mListener;
 
     // TODO Replace with Place class
-    String placeName;
-    String placeLocation;
-    String placeNotes;
+    Place place;
 
-    private ImageButton mPhotoButton;
     private ImageView mPhotoView;
 
     public PlaceDetailViewFragment() {
+        place = null;
     }
 
-    /*
-    // PULL REQUEST 2: get location or image from gallery
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -58,28 +57,27 @@ public class PlaceDetailViewFragment extends Fragment {
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 Bundle extras = data.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
-                placeBitmap.setImageBitmap(imageBitmap);
+                mPhotoView.setImageBitmap(imageBitmap);
             }
+            /*
             else if (requestCode == GRAB_IMAGE_GALLERY) {
                 try {
                     final Uri imageUri = data.getData();
                     final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
                     final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                    placeBitmap.setImageBitmap(selectedImage);
+                    mPhotoView.setImageBitmap(selectedImage);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     // String errorString = "Something went wrong trying to load picture " + data.getDataString();
                     // Toast.makeText(this, errorString, Toast.LENGTH_LONG).show();
                 }
             }
+            */
         }
     }
-    */
 
-    public void setDetails(String name, String location, String notes) {
-        this.placeName = name;
-        this.placeLocation = location;
-        this.placeNotes = notes;
+    public void setDetails(Place place) {
+        this.place = place;
     }
 
     @Override
@@ -90,30 +88,18 @@ public class PlaceDetailViewFragment extends Fragment {
 
         Log.d(TAG, "Running onCreateView now");
 
-        Log.d(TAG, "Details are " + placeName + ", " + placeLocation + ", " + placeNotes);
+        Log.d(TAG, "Details are " + place.placeName + ", " + place.placeLocation + ", " + place.placeNotes);
 
-        // TODO Retrieve details
+        // TODO Retrieve details; actually this is never called anymore
         /*
-        if (placeLocation == null) {
+        if (place == null) {
             retrieveDetails();
         }
         */
 
         // TODO Add instance variables for camera intent
-        mPhotoButton = (ImageButton) view.findViewById(R.id.place_camera);
-        mPhotoView = (ImageView) view.findViewById(R.id.place_photo);
-
-        TextView nameWidget = (TextView) view.findViewById(R.id.place_name);
-        nameWidget.setText(placeName);
-
-        TextView locationWidget = (TextView) view.findViewById(R.id.place_location);
-        locationWidget.setText(placeLocation);
-
-        TextView notesWidget = (TextView) view.findViewById(R.id.place_notes);
-        notesWidget.setText(placeNotes);
-
-        snapPictureButton = (Button) view.findViewById(R.id.place_picture);
-        snapPictureButton.setOnClickListener(new View.OnClickListener(){
+        ImageButton photoButton = (ImageButton) view.findViewById(R.id.place_camera);
+        photoButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Snap a picture of this place");
@@ -124,8 +110,20 @@ public class PlaceDetailViewFragment extends Fragment {
             }
         });
 
+        mPhotoView = (ImageView) view.findViewById(R.id.place_photo);
+
+        TextView nameWidget = (TextView) view.findViewById(R.id.place_name);
+        nameWidget.setText(place.placeName);
+
+        TextView locationWidget = (TextView) view.findViewById(R.id.place_location);
+        locationWidget.setText(place.placeLocation);
+
+        TextView notesWidget = (TextView) view.findViewById(R.id.place_notes);
+        notesWidget.setText(place.placeNotes);
+
         /*
-        // PULL REQUEST 2: get location or image from gallery
+        // PULL REQUEST: this code grabs an image from Google gallery instead of using
+        // the camera
         Button grabPictureButton = (Button) view.findViewById(R.id.place_grab_picture);
         grabPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,8 +134,10 @@ public class PlaceDetailViewFragment extends Fragment {
                 startActivityForResult(photoPickerIntent, GRAB_IMAGE_GALLERY);
             }
         });
+        */
 
-        // PULL REQUEST 2: get location or image from gallery
+        /*
+        // PULL REQUEST: this code does the work to get current location
         Button getLocationButton = (Button) view.findViewById(R.id.place_get_location);
         getLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,25 +165,19 @@ public class PlaceDetailViewFragment extends Fragment {
         return view;
     }
 
-    /*
+    /* not needed anymore with Place passed through Intent
     private void retrieveDetails() {
-        // TODO Make query to database to get a specific row
-        String[] projection = { "placeName", "placeLocation", "placeNotes" };
-
+        // Query the database to get a list of places
         Uri contentUri = Uri.parse("content://" + PlacesDatabase.AUTHORITY + "/" + PlacesDatabase.BASE_PATH);
-
-        // TODO Define the selection
-        String selection =  "placeName = " + placeName;
-
+        String[] projection = { "placeName", "placeLocation", "placeNotes" };
         Cursor cursor = null;
+        String selection =  "placeName = ?";
+        String[] selectionArgs = {place.placeName};
         try {
-
-            cursor = getActivity().getContentResolver().query(contentUri, projection, selection, null, null);
-
+            cursor = getActivity().getContentResolver().query(contentUri, projection, selection, selectionArgs, null);
             while (cursor.moveToNext()) {
                 String place = cursor.getString(cursor.getColumnIndexOrThrow("placeName"));
-
-                // placeList.add(place);
+                Log.d(TAG, "Retrieved place name: " + place);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error found: " + e);
@@ -192,8 +186,6 @@ public class PlaceDetailViewFragment extends Fragment {
                 cursor.close();
             }
         }
-
-        // Log.d(TAG, "The query is as follows: " + placeList);
     }
     */
 
