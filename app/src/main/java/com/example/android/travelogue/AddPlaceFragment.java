@@ -15,12 +15,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.android.travelogue.data.PlacesDatabase;
+
+/*
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+*/
 
 
 public class AddPlaceFragment extends Fragment {
@@ -29,8 +32,10 @@ public class AddPlaceFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    /*
     // TODO Declare Firebase DB reference
     private DatabaseReference database;
+    */
 
     private String newPlaceName;
     private String newPlaceLocation;
@@ -54,8 +59,10 @@ public class AddPlaceFragment extends Fragment {
 
         Log.d(TAG, "onCreateView for AddPlaceFragment is running");
 
+        /*
         // TODO Set reference to Firebase database
         database = FirebaseDatabase.getInstance().getReference();
+        */
 
         // TODO Get current place
         /*
@@ -98,28 +105,22 @@ public class AddPlaceFragment extends Fragment {
                 Log.d(TAG, "Submit button clicked, fields added to database.");
 
                 // Create a new map of values, where column names are the keys
-                /*
                 ContentValues values = new ContentValues();
-
                 values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NAME, newPlaceName);
                 values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LOCATION, newPlaceLocation);
                 values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NOTES, newPlaceNotes);
-
                 Log.d(TAG, "row saved consists of " + newPlaceName + ", " + newPlaceLocation + ", " + newPlaceNotes);
 
                 // Insert a new row with values
                 Uri contentUri = Uri.parse("content://" + PlacesDatabase.AUTHORITY + "/" + PlacesDatabase.BASE_PATH);
-
                 Uri returnedUri = getActivity().getContentResolver().insert(contentUri, values);
-
                 Log.d(TAG, "Finished insert for " + returnedUri);
-                */
 
                 // TODO Write data to Firebase Realtime Database
-                writeNewPlace(newPlaceName, newPlaceLocation, newPlaceNotes);
+                // writeNewPlace(newPlaceName, newPlaceLocation, newPlaceNotes);
 
                 // TODO Launch intent to open PlaceListActivity
-                mListener.onFragmentInteraction(newPlaceName, newPlaceLocation, newPlaceNotes);
+                mListener.onFragmentInteraction(new Place(newPlaceName, newPlaceLocation, newPlaceNotes));
 
                 // TODO Add Snackbar message notifying user of data saved
             }
@@ -167,9 +168,10 @@ public class AddPlaceFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         // void onFragmentInteraction(Uri uri);
-        void onFragmentInteraction(String placeName, String placeLocation, String placeNotes);
+        void onFragmentInteraction(Place place);
     }
 
+    /*
     private void writeNewPlace(String name, String location, String notes) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("/places/");
@@ -178,6 +180,6 @@ public class AddPlaceFragment extends Fragment {
 
         DatabaseReference pushedRef = myRef.push();
         pushedRef.setValue(place);
-
     }
+    */
 }

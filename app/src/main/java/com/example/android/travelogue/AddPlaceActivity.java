@@ -7,13 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import static com.example.android.travelogue.Place.PLACE_NAME;
+
 public class AddPlaceActivity extends AppCompatActivity implements AddPlaceFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "PlaceListActivity";
-    private static final String PLACE_NAME = "PlaceName";
-    private static final String PLACE_LOCATION = "PlaceLocation";
-    private static final String PLACE_NOTES = "PlaceNotes";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +34,9 @@ public class AddPlaceActivity extends AppCompatActivity implements AddPlaceFragm
     }
 
     // Callback to AddPlaceFragment
-    public void onFragmentInteraction(String placeName, String placeLocation, String placeNotes) {
+    public void onFragmentInteraction(Place place) {
         Intent intent = new Intent(this, PlaceDetailViewActivity.class);
-        intent.putExtra(PLACE_NAME, placeName);
-        intent.putExtra(PLACE_LOCATION, placeLocation);
-        intent.putExtra(PLACE_NOTES, placeNotes);
+        intent.putExtra(Place.PLACE_NAME, place);
         startActivity(intent);
     }
 }
