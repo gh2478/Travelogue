@@ -1,11 +1,16 @@
 package com.example.android.travelogue;
 
+import android.Manifest;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +20,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.android.travelogue.data.PlacesDatabase;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 /*
 import com.google.android.gms.location.places.PlaceLikelihood;
@@ -29,8 +37,15 @@ import com.google.firebase.database.FirebaseDatabase;
 public class AddPlaceFragment extends Fragment {
 
     private static final String TAG = "AddPlaceFragment";
+    private static final String[] LOCATION_PERMISSIONS = new String[] {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+    private static final int REQUEST_LOCATION_PERMISSION = 2;
 
     private OnFragmentInteractionListener mListener;
+
+    private FusedLocationProviderClient client;
 
     /*
     // TODO Declare Firebase DB reference
@@ -41,6 +56,9 @@ public class AddPlaceFragment extends Fragment {
     private String newPlaceLocation;
     private String newPlaceNotes;
     private View addPlaceView;
+
+    private boolean gotNewLocation;
+    private Location newLocation;
 
     public AddPlaceFragment() {
         // Required empty public constructor
@@ -58,6 +76,8 @@ public class AddPlaceFragment extends Fragment {
         addPlaceView = inflater.inflate(R.layout.fragment_add_place, container, false);
 
         Log.d(TAG, "onCreateView for AddPlaceFragment is running");
+
+        gotNewLocation = false;
 
         /*
         // TODO Set reference to Firebase database
@@ -109,6 +129,9 @@ public class AddPlaceFragment extends Fragment {
                 values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NAME, newPlaceName);
                 values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LOCATION, newPlaceLocation);
                 values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NOTES, newPlaceNotes);
+                values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LATITUDE, newLocation.getLatitude());
+                values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LONGITUDE, newLocation.getLongitude());
+                values.put(PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_TIMESTAMP, newLocation.getTime());
                 Log.d(TAG, "row saved consists of " + newPlaceName + ", " + newPlaceLocation + ", " + newPlaceNotes);
 
                 // Insert a new row with values
@@ -116,15 +139,39 @@ public class AddPlaceFragment extends Fragment {
                 Uri returnedUri = getActivity().getContentResolver().insert(contentUri, values);
                 Log.d(TAG, "Finished insert for " + returnedUri);
 
+                // Get the id of the new record
+                int newPlaceId = (int) ContentUris.parseId(returnedUri);
+
                 // TODO Write data to Firebase Realtime Database
                 // writeNewPlace(newPlaceName, newPlaceLocation, newPlaceNotes);
 
                 // TODO Launch intent to open PlaceListActivity
-                mListener.onFragmentInteraction(new Place(newPlaceName, newPlaceLocation, newPlaceNotes));
+                mListener.onFragmentInteraction(new Place(newPlaceId, newPlaceName, newPlaceLocation, newPlaceNotes,
+                        newLocation.getLatitude(), newLocation.getLongitude(), (int) newLocation.getTime()));
 
                 // TODO Add Snackbar message notifying user of data saved
             }
         });
+
+        Log.d(TAG, "Get the location of this place");
+        // TODO this returns a Location class which is what should be saved in Place
+        if (hasLocationPermission()) {
+            client = LocationServices.getFusedLocationProviderClient(getActivity());
+            client.getLastLocation()
+                    .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                Log.i(TAG, "Got location " + location);
+                                newLocation = location;
+                                gotNewLocation = true;
+                            }
+                        }
+                    });
+        }
+        else {
+            requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSION);
+        }
 
         return addPlaceView;
     }
@@ -182,4 +229,10 @@ public class AddPlaceFragment extends Fragment {
         pushedRef.setValue(place);
     }
     */
+
+    // PULL REQUEST 2: get location or image from gallery
+    private boolean hasLocationPermission() {
+        int result = ContextCompat.checkSelfPermission(getActivity(), LOCATION_PERMISSIONS[0]);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
 }
