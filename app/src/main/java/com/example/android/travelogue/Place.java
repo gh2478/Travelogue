@@ -11,19 +11,27 @@ import android.os.Parcelable;
 public class Place implements Parcelable {
     public static final String PLACE_NAME = "PlaceName";
 
-    public String placeKey;
+    // TODO public String placeKey;
+    public int    placeId;
     public String placeName;
     public String placeLocation;
     public String placeNotes;
+    public double placeLatitude;
+    public double placeLongitude;
+    public int    placeTime;
 
     public Place() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Place(String name, String location, String notes) {
+    public Place(int id, String name, String location, String notes, double latitude, double longitude, int time) {
+        this.placeId = id;
         this.placeName = name;
         this.placeLocation = location;
         this.placeNotes = notes;
+        this.placeLatitude = latitude;
+        this.placeLongitude = longitude;
+        this.placeTime = time;
     }
 
     @Override
