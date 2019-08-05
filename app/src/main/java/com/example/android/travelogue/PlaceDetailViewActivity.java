@@ -17,7 +17,9 @@ public class PlaceDetailViewActivity extends AppCompatActivity implements PlaceD
         setContentView(R.layout.activity_place_detail_view);
 
         Intent intent = getIntent();
-        Place place = (Place) intent.getParcelableExtra("PlaceName");
+        String placeName = intent.getStringExtra("PlaceName");
+        String placeLocation = intent.getStringExtra("PlaceLocation");
+        String placeNotes = intent.getStringExtra("PlaceNotes");
 
         FragmentManager fm = getSupportFragmentManager();
 
@@ -27,7 +29,7 @@ public class PlaceDetailViewActivity extends AppCompatActivity implements PlaceD
 
         if (fragment == null) {
             fragment = new PlaceDetailViewFragment();
-            fragment.setDetails(place);
+            fragment.setDetails(placeName, placeLocation, placeNotes);
             fm.beginTransaction()
                     .add(R.id.detail_view_fragment_container, fragment)
                     .commit();
