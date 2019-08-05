@@ -18,10 +18,8 @@ public final class PlacesDatabase {
     public static class PlacesDatabaseEntry implements BaseColumns {
         public static final String TABLE_NAME = "placesDatabase";
         public static final String COLUMN_PLACE_NAME = "placeName";
-        public static final String COLUMN_PLACE_LOCATION = "placeLocation";
-        public static final String COLUMN_PLACE_NOTES = "placeNotes";
-        public static final String COLUMN_PLACE_LATITUDE = "placeLatitude";
         public static final String COLUMN_PLACE_LONGITUDE = "placeLongitude";
-        public static final String COLUMN_PLACE_TIMESTAMP = "placeTime";
+        public static final String COLUMN_PLACE_LATITUDE = "placeLatitude";
+        public static final String COLUMN_PLACE_NOTES = "placeNotes";
     }
 }

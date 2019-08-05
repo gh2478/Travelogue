@@ -26,22 +26,12 @@ public class PlacesDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         Log.d(TAG, "onCreate: SQLiteDatabase");
-        /*
         final String SQL_CREATE_PLACES_TABLE = "CREATE TABLE " + PlacesDatabase.PlacesDatabaseEntry.TABLE_NAME +
                 " (" + PlacesDatabase.PlacesDatabaseEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NAME + " TEXT NOT NULL," +
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LOCATION + " TEXT NOT NULL," +
+                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LONGITUDE + " DOUBLE NOT NULL," +
+                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LATITUDE + " DOUBLE NOT NULL," +
                 PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NOTES + " TEXT NOT NULL)";
-                */
-        final String SQL_CREATE_PLACES_TABLE =
-                "create table " + PlacesDatabase.PlacesDatabaseEntry.TABLE_NAME + " (" +
-                PlacesDatabase.PlacesDatabaseEntry._ID + " integer primary key autoincrement, " +
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NAME + " text not null, " +
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LOCATION + " text not null, " +
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_NOTES + " text not null, "+
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LATITUDE + " double not null, " +
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_LONGITUDE + " double not null, " +
-                PlacesDatabase.PlacesDatabaseEntry.COLUMN_PLACE_TIMESTAMP + " integer not null)";
 
         sqLiteDatabase.execSQL(SQL_CREATE_PLACES_TABLE);
     }

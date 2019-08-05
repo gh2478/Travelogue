@@ -55,9 +55,9 @@ public class PlacesProvider extends ContentProvider {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        long index = db.insert(TABLE_NAME, null, values);
+        db.insert(TABLE_NAME, null, values);
 
-        return Uri.parse(PLACES_TABLE + "/" + index);
+        return uri;
     }
 
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
